@@ -1,0 +1,19 @@
+```mermaid
+flowchart TD
+  ST([Start]) --> LG{Logged in?}
+  LG -- "No" --> LG1[Login screen<br/>Enter ID, password, OTP]
+  LG1 --> LG2{Login success?}
+  LG2 -- "Yes" --> HM[Home]
+  LG -- "Yes" --> HM
+
+  HM --> SYM[Select symbol<br/>From Watchlist/Search/Position/orders]
+  SYM --> S0[Open Sell order form]
+  S0 --> SPROD{Product type?}
+  SPROD -- "Delivery" --> SD_HOLD{Has holdings?}
+  SD_HOLD -- "No" --> SD_TODAY{Has todays buy position?}
+  SD_TODAY -- "Yes" --> SD_T1[Place Delivery Sell from todays position<br/>No CDSL needed]
+  SD_T1 --> SD_TOB[Record Sell in Order Book]
+  SD_TOB --> SD_TFILL{Order executed?}
+  SD_TFILL -- "Yes" --> SD_T_OK[Completed in Order Book]
+  SD_T_OK --> SD_T_POS[Update positions<br/>Todays position reduced or closed]
+  SD_T_POS --> SD_T_END[End<br/>Delivery Sell from todays buy only]

@@ -1,0 +1,22 @@
+```mermaid
+flowchart TD
+  ST([Start]) --> LG{Logged in?}
+  LG -- "No" --> LG1[Login screen<br/>Enter ID, password, OTP]
+  LG1 --> LG2{Login success?}
+  LG2 -- "Yes" --> HM[Home]
+  LG -- "Yes" --> HM
+
+  HM --> SYM[Select symbol from Holdings/Search/Watchlist]
+  SYM --> S0[Open Sell order form]
+  S0 --> SPROD{Product type?}
+  SPROD -- "Delivery" --> SD_HOLD{Has holdings?}
+  SD_HOLD -- "Yes" --> SD_QTY{Is sell qty more than holdings qty?}
+  SD_QTY -- "No (only holdings)" --> SD_POA{POA true?}
+  SD_POA -- "No" --> SD_CDSL{CDSL already done for holdings qty?}
+  SD_CDSL -- "Yes" --> SD_E1[Place Delivery Sell for holdings qty<br/>Using existing CDSL]
+  SD_E1 --> SD_EOB[Record Sell in Order Book]
+  SD_EOB --> SD_EFILLED{Order executed?}
+  SD_EFILLED -- "Yes" --> SD_E_OK[Completed in Order Book]
+  SD_E_OK --> SD_E_POS[Update positions<br/>Holdings reduced]
+  SD_E_POS --> SD_END2[End<br/>POA false existing CDSL success]
+

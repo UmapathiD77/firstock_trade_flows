@@ -1,0 +1,9 @@
+
+{
+  "editor.wordWrap": "on",
+  "files.associations": {
+    "*.mmd": "markdown"
+  },
+  "markdown.extension.preview.autoShowPreviewToSide": true,
+  "markdown.preview.breaks": true
+}

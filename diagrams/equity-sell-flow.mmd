@@ -1,0 +1,84 @@
+```mermaid
+flowchart LR
+
+  ST([Start]) --> LG{Logged in?}
+
+  LG -- No --> LG1[Login screen<br/>Enter ID, password, OTP]
+  LG1 --> LG2{Login success?}
+  LG2 -- No --> LGF[Login fails]
+  LG2 -- Yes --> HM[Home]
+
+  LG -- Yes --> HM
+
+  HM --> SYM[Select symbol<br/>holdings or watchlist]
+  SYM --> S0[Open Sell order form]
+  S0 --> SPROD{Product type?}
+
+  %% DELIVERY SELL
+  SPROD -- Delivery --> SD_HOLD{Has holdings?}
+
+  SD_HOLD -- No --> SD_NO_HOLD[Delivery Sell without holdings<br/>validation or RMS error]
+
+  SD_HOLD -- Yes --> SD_POA{POA true?}
+
+  %% POA TRUE
+  SD_POA -- Yes --> SD_P1[Place Delivery Sell<br/>no CDSL needed]
+  SD_P1 --> SD_OB[Record Sell in Order Book]
+  SD_OB --> SD_FILLED{Order executed?}
+
+  SD_FILLED -- No --> SD_REJ[Rejected or not executed<br/>Order Book only]
+
+  SD_FILLED -- Yes --> SD_OK1[Completed in Order Book]
+  SD_OK1 --> SD_POS1[Update positions<br/>holdings reduced]
+  SD_POS1 --> SD_END1[Delivery Sell POA true success<br/>Order Book and positions]
+
+  %% POA FALSE
+  SD_POA -- No --> SD_CDSL{CDSL or eDIS already done?}
+
+  SD_CDSL -- Yes --> SD_E1[Place Delivery Sell using CDSL]
+  SD_E1 --> SD_EOB[Record Sell in Order Book]
+  SD_EOB --> SD_EFILLED{Order executed?}
+
+  SD_EFILLED -- No --> SD_E_REJ[Rejected or not executed<br/>Order Book only]
+
+  SD_EFILLED -- Yes --> SD_E_OK[Completed in Order Book]
+  SD_E_OK --> SD_E_POS[Update positions<br/>holdings reduced]
+  SD_E_POS --> SD_END2[Delivery Sell POA false existing CDSL<br/>Order Book and positions]
+
+  SD_CDSL -- No --> SD_NAV[Go to CDSL or eDIS page]
+  SD_NAV --> SD_DONE{User completes CDSL?}
+
+  SD_DONE -- No --> SD_ABORT[CDSL not completed<br/>sell aborted no order]
+
+  SD_DONE -- Yes --> SD_N1[Place Delivery Sell after CDSL]
+  SD_N1 --> SD_NOB[Record Sell in Order Book]
+  SD_NOB --> SD_NFILL{Order executed?}
+
+  SD_NFILL -- No --> SD_N_REJ[Rejected or not executed<br/>Order Book only]
+
+  SD_NFILL -- Yes --> SD_N_OK[Completed in Order Book]
+  SD_N_OK --> SD_N_POS[Update positions<br/>holdings reduced]
+  SD_N_POS --> SD_END3[Delivery Sell POA false new CDSL<br/>Order Book and positions]
+
+  %% INTRADAY SELL
+  SPROD -- Intraday --> SI_HOLD{Has holdings?}
+
+  SI_HOLD -- Yes --> SI1[Place Intraday Sell from holdings<br/>no CDSL needed]
+  SI1 --> SI_OB1[Record Intraday Sell in Order Book]
+  SI_OB1 --> SI_FILL1{Order executed?}
+
+  SI_FILL1 -- No --> SI_REJ1[Not executed<br/>Order Book only]
+
+  SI_FILL1 -- Yes --> SI_OK1[Completed in Order Book]
+  SI_OK1 --> SI_POS1[Update intraday PnL and positions]
+  SI_POS1 --> SI_END1[Intraday Sell from holdings success]
+
+  SI_HOLD -- No --> SI2[Place Intraday short Sell<br/>no holdings no CDSL]
+  SI2 --> SI_OB2[Record Intraday Sell in Order Book]
+  SI_OB2 --> SI_FILL2{Order executed?}
+
+  SI_FILL2 -- No --> SI_REJ2[Not executed<br/>Order Book only]
+
+  SI_FILL2 -- Yes --> SI_OK2[Completed in Order Book]
+  SI_OK2 --> SI_POS2[Create short intraday position]
+  SI_POS2 --> SI_END2[Intraday short Sell success<br/>Order Book and short position]

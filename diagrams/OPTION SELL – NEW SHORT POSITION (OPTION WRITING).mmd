@@ -1,0 +1,64 @@
+```mermaid
+flowchart TD 
+
+  ST([Start]) --> LG{Logged in?}
+
+  LG -- No --> LG1[Login screen<br/>Enter ID, Password, OTP]
+  LG1 --> LG2{Login success?}
+  LG2 -- Yes --> HM[Home or Option chain]
+
+  LG -- Yes --> HM
+
+  HM --> OPT[Select option contract<br/>Index or Stock CE/PE]
+  OPT --> OS0[Open Option Sell form]
+  OS0 --> OS1[Submit Sell]
+
+  OS1 --> FE{Front-end validation OK?}
+
+  FE -- No --> FE_ERR[Validation fail<br/>Not sent to OMS]
+
+  FE -- Yes --> OMS_REQ[Send Sell to Backend/OMS]
+
+  OMS_REQ --> RMS_CHK[Backend RMS checks<br/>Margin, existing positions]
+  RMS_CHK --> RMS_OK{Checks passed?}
+
+  RMS_OK -- No --> RMS_REJ[RMS reject<br/>Rejected in Order Book]
+
+  RMS_OK -- Yes --> HAS_LONG{Has LONG qty?}
+
+  %% ---------- NEW SHORT WRITING FLOW ----------
+  HAS_LONG -- No --> WR1[Create new SHORT position]
+
+  WR1 --> MAR_CHK[Recalculate SPAN & Exposure margin]
+  MAR_CHK --> MAR_OK{Margin sufficient?}
+
+  MAR_OK -- No --> MAR_FAIL[Margin insufficient<br/>RMS reject]
+
+  MAR_OK -- Yes --> EX_REQ[Send SHORT Sell to Exchange]
+
+  EX_REQ --> EX_ACC{Exchange accepts?}
+
+  EX_ACC -- No --> EX_REJ[Exchange reject<br/>Rejected in Order Book]
+
+  EX_ACC -- Yes --> LIVE[Order live at Exchange<br/>Status: Open/Pending]
+
+  LIVE --> WR_OB[Shown Open/Pending in Order Book]
+
+  LIVE --> WR_FILL{Order filled?}
+
+  WR_FILL -- No --> WR_NOFILL[Remain Open/Pending]
+
+  WR_FILL -- Partial --> WR_PART[Partial SHORT fills]
+  WR_PART --> WR_FULLQ{Eventually fully filled?}
+
+  WR_FULLQ -- No --> WR_PART_OPEN[Partial SHORT position created]
+
+  WR_FULLQ -- Yes --> WR_FULL[SHORT fully created]
+  WR_FULL --> WR_UPD1[Update Order Book & Trade Book]
+  WR_UPD1 --> WR_POS1[SHORT position created<br/>Margin blocked]
+  WR_POS1 --> WR_DONE1[Option writing success]
+
+  WR_FILL -- Yes --> WR_IMM[Immediate full SHORT execution]
+  WR_IMM --> WR_UPD2[Update Order Book & Trade Book]
+  WR_UPD2 --> WR_POS2[SHORT position created<br/>Margin blocked]
+  WR_POS2 --> WR_DONE2[Immediate writing success]

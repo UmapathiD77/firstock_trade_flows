@@ -1,0 +1,87 @@
+```mermaid
+flowchart TD 
+
+  ST([Start]) --> LG{Logged in?}
+
+  LG -- No --> LG1[Login screen<br/>Enter ID, password, OTP]
+  LG1 --> LG2{Login success?}
+  LG2 -- No --> LGF[Login fails]
+  LG2 -- Yes --> HM[Home or Option chain]
+
+  LG -- Yes --> HM
+
+  HM --> OPT[Select option contract<br/>index or stock CE or PE]
+  OPT --> OS0[Open option Sell form]
+
+  OS0 --> OS1[Submit option Sell]
+  OS1 --> OS_OB[Record Sell in Order Book]
+  OS_OB --> OS_FE{Front end validation OK?}
+
+  OS_FE -- No --> OS_FE_FAIL[Validation fail<br/>error not sent to OMS]
+
+  OS_FE -- Yes --> OS_BK[Send Sell to backend or OMS]
+  OS_BK --> OS_CHK[Backend checks<br/>existing positions margin RMS]
+  OS_CHK --> OS_RMS{Checks passed?}
+
+  OS_RMS -- No --> OS_RMS_REJ[RMS or margin reject Sell<br/>Rejected in Order Book]
+
+  OS_RMS -- Yes --> OS_TYPE{Has LONG quantity for this contract?}
+
+  %% CLOSE LONG POSITION
+  OS_TYPE -- Yes --> CL1[Close LONG position square off]
+  CL1 --> CL_EX[Send Sell to exchange]
+  CL_EX --> CL_EXOK{Exchange accepts?}
+
+  CL_EXOK -- No --> CL_EX_REJ[Exchange reject close long Sell<br/>Rejected in Order Book]
+
+  CL_EXOK -- Yes --> CL_OPEN[Sell live at exchange<br/>status Open or Pending]
+  CL_OPEN --> CL_STATE[Visible as Open or Pending in Order Book]
+  CL_OPEN --> CL_FILL{Order filled?}
+
+  CL_FILL -- No --> CL_NOFILL[Remains Open or Pending]
+
+  CL_FILL -- Partial --> CL_PART[Partially close LONG]
+  CL_PART --> CL_FULLQ{Eventually fully filled?}
+  CL_FULLQ -- No --> CL_PART_OPEN[LONG reduced but not closed]
+
+  CL_FULLQ -- Yes --> CL_FULL[LONG fully squared off]
+  CL_FULL --> CL_UPD1[Update Order Book and Trade Book]
+  CL_UPD1 --> CL_POS1[Close or reduce LONG<br/>premium credited margin freed]
+  CL_POS1 --> CL_DONE1[Close long Sell success<br/>Order Book and positions]
+
+  CL_FILL -- Yes --> CL_IMM[Immediate full square off]
+  CL_IMM --> CL_UPD2[Update Order Book and Trade Book]
+  CL_UPD2 --> CL_POS2[LONG closed<br/>premium credited margin freed]
+  CL_POS2 --> CL_DONE2[Immediate close long success<br/>Order Book and positions]
+
+  %% OPTION WRITING SHORT POSITION
+  OS_TYPE -- No --> WR1[Option writing new SHORT position]
+  WR1 --> WR_MAR[Recalculate SPAN and exposure margin]
+  WR_MAR --> WR_OK{Margin sufficient?}
+
+  WR_OK -- No --> WR_MAR_FAIL[Margin not sufficient<br/>RMS reject Rejected in Order Book]
+
+  WR_OK -- Yes --> WR_EX[Send SHORT Sell to exchange]
+  WR_EX --> WR_EXOK{Exchange accepts?}
+
+  WR_EXOK -- No --> WR_EX_REJ[Exchange reject SHORT Sell<br/>Rejected in Order Book]
+
+  WR_EXOK -- Yes --> WR_OPEN[SHORT Sell live at exchange<br/>status Open or Pending]
+  WR_OPEN --> WR_STATE[Visible as Open or Pending in Order Book]
+  WR_OPEN --> WR_FILL{Order filled?}
+
+  WR_FILL -- No --> WR_NOFILL[Remains Open or Pending]
+
+  WR_FILL -- Partial --> WR_PART[Partial SHORT fills]
+  WR_PART --> WR_FULLQ{Eventually fully filled?}
+  WR_FULLQ -- No --> WR_PART_OPEN[Partial SHORT position created]
+
+  WR_FULLQ -- Yes --> WR_FULL[SHORT fully created]
+  WR_FULL --> WR_UPD1[Update Order Book and Trade Book]
+  WR_UPD1 --> WR_POS1[Create or increase SHORT position<br/>margin blocked updated]
+  WR_POS1 --> WR_DONE1[Option writing success<br/>Order Book and SHORT position]
+
+  WR_FILL -- Yes --> WR_IMM[Immediate full SHORT execution]
+  WR_IMM --> WR_UPD2[Update Order Book and Trade Book]
+  WR_UPD2 --> WR_POS2[Create SHORT position<br/>margin blocked updated]
+  WR_POS2 --> WR_DONE2[Immediate writing success<br/>Order Book and SHORT position]

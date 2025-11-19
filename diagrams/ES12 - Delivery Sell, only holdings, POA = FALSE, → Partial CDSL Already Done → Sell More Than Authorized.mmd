@@ -1,0 +1,60 @@
+```mermaid
+flowchart TD
+
+  ST([Start]) --> LG{Logged in?}
+
+  LG -- "No" --> LG1[Login screen<br/>Enter ID, Password, OTP]
+  LG1 --> LG2{Login success?}
+  LG2 -- "Yes" --> HM[Home]
+
+  LG -- "Yes" --> HM
+
+  HM --> SYM[Select symbol from Holdings]
+  SYM --> S0[Open Sell order form]
+
+  S0 --> SPROD{Product type?}
+  SPROD -- "Delivery" --> SD_HOLD{Has holdings?}
+
+  SD_HOLD -- "Yes" --> SD_POA{POA true?}
+
+  %% POA FALSE
+  SD_POA -- "No" --> SD_AUTH_QTY[Check previously authorised CDSL quantity]
+
+  %% Example context:
+  %% Holdings = 10, authorised earlier for part of quantity
+  SD_AUTH_QTY --> SD_REQ_QTY[User enters sell quantity]
+
+  SD_REQ_QTY --> SD_CHECK{
+    Is authorised quantity<br/>enough for sell quantity?
+  }
+
+  %% NOT ENOUGH → NEED MORE CDSL
+  SD_CHECK -- "No" --> SD_NAV[
+    Not enough CDSL authorisation<br/>
+    Navigate to CDSL or eDIS<br/>
+    User must authorise remaining quantity
+  ]
+
+  SD_NAV --> SD_DONE{User completes CDSL?}
+
+  SD_DONE -- "No" --> SD_ABORT[
+    CDSL not completed<br/>
+    Sell aborted<br/>
+    Order not placed
+  ]
+
+  SD_DONE -- "Yes" --> SD_PLACE[
+    CDSL completed for remaining quantity<br/>
+    Place Delivery Sell order
+  ]
+
+  SD_PLACE --> SD_OB[Record Sell in Order Book]
+
+  SD_OB --> SD_FILL{Order executed?}
+
+  SD_FILL -- "Yes" --> SD_OK[
+    Order executed<br/>
+    Holdings reduced
+  ]
+
+  SD_OK --> END([End])

@@ -1,0 +1,29 @@
+```mermaid
+flowchart TD
+
+  ST([Start]) --> LG{Logged in?}
+
+  LG -- "No" --> LG1[Login screen<br/>Enter ID, password, OTP]
+  LG1 --> LG2{Login success?}
+  LG2 -- "Yes" --> HM[Home]
+
+  LG -- "Yes" --> HM
+
+  HM --> SYM[Select symbol<br/>From Watchlist / Search]
+  SYM --> S0[Open Sell order form]
+  S0 --> SPROD{Product type?}
+
+  SPROD -- "Delivery" --> SD_HOLD{Has holdings?}
+
+  SD_HOLD -- "No" --> SD_TODAY{Has today's buy position?}
+
+  %% No Holdings + No Today Position = Rejection
+  SD_TODAY -- "No" --> SD_REJECT[
+    Cannot place Delivery Sell<br/>
+    No holdings and no today's buy<br/>
+    Show validation / RMS error
+  ]
+
+  SD_REJECT --> SD_OB[Add entry in Order Book<br/>Status: Rejected]
+
+  SD_OB --> END([End])

@@ -1,0 +1,51 @@
+```mermaid
+flowchart LR
+
+  ST([Start]) --> LG{Logged in?}
+
+  LG -- No --> LG1[Login screen<br/>Enter ID, password, OTP]
+  LG1 --> LG2{Login success?}
+  LG2 -- No --> LGF[Login fails<br/>Stay on login]
+  LG2 -- Yes --> HM[Home]
+
+  LG -- Yes --> HM
+
+  HM --> SYM[Select symbol<br/>Watchlist or search]
+  SYM --> B0[Open Buy order form]
+
+  B0 --> B1[Submit Buy]
+  B1 --> B_OB[Record Buy in Order Book]
+  B_OB --> BFE{Front end validation OK?}
+
+  BFE -- No --> BFE_FAIL[Show validation error<br/>Order not sent to OMS]
+
+  BFE -- Yes --> BB[Send Buy to backend or OMS]
+  BB --> BCHK[Backend checks<br/>funds, margin, RMS, market]
+  BCHK --> BRMS{Backend checks passed?}
+
+  BRMS -- No --> B_RMS_REJ[Backend or RMS reject<br/>Status Rejected in Order Book]
+
+  BRMS -- Yes --> BEX[Send Buy to exchange]
+  BEX --> BEXOK{Exchange accepts?}
+
+  BEXOK -- No --> B_EX_REJ[Exchange reject<br/>Status Rejected in Order Book]
+
+  BEXOK -- Yes --> BOPEN[Order live at exchange<br/>status Open or Pending]
+  BOPEN --> BOPEN_STATE[Visible as Open or Pending in Order Book]
+  BOPEN --> BFILL{Order filled?}
+
+  BFILL -- No --> B_NOFILL[Remains Open or Pending<br/>no trades]
+
+  BFILL -- Partial --> B_PART[Partial fills]
+  B_PART --> B_PART_DONE{Eventually fully filled?}
+  B_PART_DONE -- No --> B_PART_OPEN[Partially filled<br/>some qty traded]
+
+  B_PART_DONE -- Yes --> B_FULL[Buy completed]
+  B_FULL --> B_UPD1[Update Order Book and Trade Book]
+  B_UPD1 --> B_UPD2[Update portfolio holdings]
+  B_UPD2 --> B_END_FULL[Buy success<br/>Order Book and holdings updated]
+
+  BFILL -- Yes --> B_IMM[Immediate full fill]
+  B_IMM --> B_UPD3[Update Order Book and Trade Book]
+  B_UPD3 --> B_UPD4[Update portfolio holdings]
+  B_UPD4 --> B_END_IMM[Immediate Buy success<br/>Order Book and holdings updated]

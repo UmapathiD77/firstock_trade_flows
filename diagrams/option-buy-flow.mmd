@@ -1,0 +1,51 @@
+```mermaid
+flowchart 
+
+  ST([Start]) --> LG{Logged in?}
+
+  LG -- No --> LG1[Login screen<br/>Enter ID, password, OTP]
+  LG1 --> LG2{Login success?}
+  LG2 -- No --> LGF[Login fails]
+  LG2 -- Yes --> HM[Home or Option chain]
+
+  LG -- Yes --> HM
+
+  HM --> OPT[Select option contract<br/>index or stock CE or PE]
+  OPT --> OB0[Open option Buy form]
+
+  OB0 --> OB1[Submit option Buy]
+  OB1 --> OB_OB[Record Buy in Order Book]
+  OB_OB --> OB_FE{Front end validation OK?}
+
+  OB_FE -- No --> OB_FE_FAIL[Validation fail<br/>error not sent to OMS]
+
+  OB_FE -- Yes --> OB_BK[Send Buy to backend or OMS]
+  OB_BK --> OB_CHK[Backend checks<br/>funds margin RMS strike market]
+  OB_CHK --> OB_RMS{Checks passed?}
+
+  OB_RMS -- No --> OB_RMS_REJ[RMS or margin reject Buy<br/>Rejected in Order Book]
+
+  OB_RMS -- Yes --> OB_EX[Send Buy to exchange]
+  OB_EX --> OB_EXOK{Exchange accepts?}
+
+  OB_EXOK -- No --> OB_EX_REJ[Exchange reject Buy<br/>Rejected in Order Book]
+
+  OB_EXOK -- Yes --> OB_OPEN[Order live at exchange<br/>status Open or Pending]
+  OB_OPEN --> OB_OPEN_STATE[Visible as Open or Pending in Order Book]
+  OB_OPEN --> OB_FILL{Order filled?}
+
+  OB_FILL -- No --> OB_NOFILL[Remains Open or Pending]
+
+  OB_FILL -- Partial --> OB_PART[Partial Buy fills]
+  OB_PART --> OB_FULL_Q{Eventually fully filled?}
+  OB_FULL_Q -- No --> OB_PART_OPEN[Partially filled Buy<br/>some qty traded]
+
+  OB_FULL_Q -- Yes --> OB_FULL[Buy completed]
+  OB_FULL --> OB_UPD1[Update Order Book and Trade Book]
+  OB_UPD1 --> OB_POS1[Create or increase LONG option position<br/>premium debited margin updated]
+  OB_POS1 --> OB_DONE1[Option Buy success<br/>Order Book and positions]
+
+  OB_FILL -- Yes --> OB_IMM[Immediate full Buy]
+  OB_IMM --> OB_UPD2[Update Order Book and Trade Book]
+  OB_UPD2 --> OB_POS2[Create LONG option position<br/>premium debited margin updated]
+  OB_POS2 --> OB_DONE2[Immediate Buy success<br/>Order Book and positions]

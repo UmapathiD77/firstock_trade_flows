@@ -1,0 +1,18 @@
+```mermaid
+flowchart TD
+  ST([Start]) --> LG{Logged in?}
+  LG -- "No" --> LG1[Login screen<br/>Enter ID, password, OTP]
+  LG1 --> LG2{Login success?}
+  LG2 -- "Yes" --> HM[Home]
+  LG -- "Yes" --> HM
+
+  HM --> SYM[Select symbol<br/>No holdings]
+  SYM --> S0[Open Sell order form]
+  S0 --> SPROD{Product type?}
+  SPROD -- "Intraday" --> SI_HOLD{Has holdings?}
+  SI_HOLD -- "No" --> SI2[Place Intraday short Sell<br/>No CDSL needed]
+  SI2 --> SI_OB2[Record Intraday Sell in Order Book]
+  SI_OB2 --> SI_FILL2{Order executed?}
+  SI_FILL2 -- "Yes" --> SI_OK2[Completed in Order Book]
+  SI_OK2 --> SI_POS2[Create short intraday position]
+  SI_POS2 --> SI_END2[End<br/>Intraday short Sell success]

@@ -1,0 +1,23 @@
+```mermaid
+flowchart TD
+  ST([Start]) --> LG{Logged in?}
+  LG -- "No" --> LG1[Login screen<br/>Enter ID, password, OTP]
+  LG1 --> LG2{Login success?}
+  LG2 -- "Yes" --> HM[Home]
+  LG -- "Yes" --> HM
+
+  HM --> SYM[Select symbol<br/>Holdings plus today position]
+  SYM --> S0[Open Sell order form]
+  S0 --> SPROD{Product type?}
+  SPROD -- "Delivery" --> SD_HOLD{Has holdings?}
+  SD_HOLD -- "Yes" --> SD_QTY{Is sell qty more than holdings qty?}
+  SD_QTY -- "Yes (holdings + today)" --> SD_POA_MIX{POA true?}
+  SD_POA_MIX -- "No" --> SD_M_CDSL{CDSL already done for holdings qty?}
+  SD_M_CDSL -- "No" --> SD_MNAV[Open CDSL screen<br/>For holdings quantity only]
+  SD_MNAV --> SD_MDONE{User completes CDSL for holdings?}
+  SD_MDONE -- "Yes" --> SD_MN1[Place Delivery Sell for full sell qty<br/>Holdings part now authorised]
+  SD_MN1 --> SD_MNOB[Record Sell in Order Book]
+  SD_MNOB --> SD_MNFILL{Order executed?}
+  SD_MNFILL -- "Yes" --> SD_MN_OK[Completed in Order Book]
+  SD_MN_OK --> SD_MN_POS[Update positions<br/>Holdings reduced and todays position reduced]
+  SD_MN_POS --> SD_MN_END[End<br/>POA false mixed qty after new CDSL<br/>User sold full quantity]

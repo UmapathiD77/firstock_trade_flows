@@ -1,0 +1,59 @@
+
+```mermaid
+flowchart TD 
+
+  ST([Start]) --> LG{Logged in?}
+
+  LG -- No --> LG1[Login screen<br/>Enter ID, Password, OTP]
+  LG1 --> LG2{Login success?}
+  LG2 -- Yes --> HM[Home or Option chain]
+
+  LG -- Yes --> HM
+
+  HM --> OPT[Select option contract<br/>Index or Stock CE/PE]
+  OPT --> OS0[Open Option Sell form]
+  OS0 --> OS1[Submit Sell]
+
+  OS1 --> FE{Front-end validation OK?}
+
+  FE -- No --> FE_ERR[Validation fail<br/>Not sent to OMS]
+
+  FE -- Yes --> OMS_REQ[Send Sell to Backend/OMS]
+
+  OMS_REQ --> RMS_CHK[Backend RMS checks<br/>Margin, existing positions]
+  RMS_CHK --> RMS_OK{Checks passed?}
+
+  RMS_OK -- No --> RMS_REJ[RMS reject<br/>Rejected in Order Book]
+
+  RMS_OK -- Yes --> HAS_LONG{Has LONG qty for this contract?}
+
+  %% ---------- CLOSE LONG FLOW ----------
+  HAS_LONG -- Yes --> CL1[Square-off LONG position]
+  CL1 --> EX_REQ[Send Sell to Exchange]
+
+  EX_REQ --> EX_ACC{Exchange accepts?}
+
+  EX_ACC -- No --> EX_REJ[Exchange reject<br/>Rejected in Order Book]
+
+  EX_ACC -- Yes --> LIVE[Order live at exchange<br/>Status: Open/Pending]
+
+  LIVE --> CL_OB[Shown as Open/Pending in Order Book]
+
+  LIVE --> FILL{Order filled?}
+
+  FILL -- No --> NFILL[Remain Open/Pending]
+
+  FILL -- Partial --> PART[Partial fill<br/>Reduce LONG]
+  PART --> FULLQ{Eventually fully filled?}
+
+  FULLQ -- No --> PART_OPEN[LONG partially reduced<br/>Position still open]
+
+  FULLQ -- Yes --> FULL[LONG fully squared off]
+  FULL --> UPD1[Update Order Book & Trade Book]
+  UPD1 --> POS1[LONG closed<br/>Margin released]
+  POS1 --> DONE1[SQ-OFF success]
+
+  FILL -- Yes --> IMM[Immediate full square-off]
+  IMM --> UPD2[Update Order Book & Trade Book]
+  UPD2 --> POS2[LONG closed<br/>Margin released]
+  POS2 --> DONE2[SQ-OFF success]
