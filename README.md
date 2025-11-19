@@ -1,123 +1,107 @@
-📘 Firstock Trading Flow Diagrams
+📘 Firstock Trading Flowcharts (Equity & Options)
 
-This repository contains Mermaid-based flowcharts for Firstock’s Equity and Options trading lifecycle.
-These diagrams are useful for:
+This repository contains complete trading process flowcharts for the Firstock platform.
+All diagrams are written in Mermaid format and cover Equity and Options trading scenarios, including POA, CDSL, RMS, Exchange, Intraday, and Delivery logic.
 
-QA manual + automation test case design
+These flowcharts are used for:
 
-Developer workflows
+QA Test Case Creation
 
-Backend + OMS + RMS decision mapping
+Automation planning
 
-Documentation & knowledge transfer
+Backend/OMS/RMS logic understanding
 
-Visualizing POA/CDSL, margin checks, RMS, exchange acceptance, order status flow
+Developer onboarding
+
+Documentation & audits
 
 📂 Folder Structure
 firstock-trade-flows/
+│
 ├── diagrams/
 │   ├── equity-buy-flow.mmd
-│   ├── equity-sell-flow.mmd
+│   ├── equity-sell-flow/
+│   │     ├── ES01–NoHold-NoToday.mmd
+│   │     ├── ES03–TodayBuyOnly.mmd
+│   │     ├── ES04–POATrue.mmd
+│   │     ├── ES07–NewCDSL.mmd
+│   │     ├── ES08–MixedQty-CDSLAlready.mmd
+│   │     ├── ES09–MixedQty-NewCDSL.mmd
+│   │     ├── ES12–PartialCDSL-SellMore.mmd
+│   │     ├── ES13–PartialCDSL-SellWithin.mmd
+│   │     └── <all other ES flows>
+│   │
 │   ├── option-buy-flow.mmd
-│   └── option-sell-flow.mmd
-├── .vscode/
-│   └── settings.json
-└── README.md
+│   ├── option-sell-close-long.mmd
+│   ├── option-writing-new-short.mmd
+│   │
+│   └── README-diagrams.md (optional future extension)
+│
+├── README.md
+└── .vscode/
+    └── settings.json
 
-🗂️ Flow Diagrams
-📈 Equity
+🧭 Available Flowcharts
+📈 Equity Flows
+Flow	Description
+equity-buy-flow.mmd	Full Equity Buy (CNC/MIS) flow with RMS, Exchange, Order/Position updates
+equity-sell-flow/*.mmd	All ES01–ES13 Sell scenarios separated clearly
+ES12	POA False → Partial CDSL → Sell more than authorized
+ES13	POA False → Partial CDSL → Sell within authorized qty
+📉 Option Flows
+Flow	Description
+option-buy-flow.mmd	Option BUY: New LONG + SHORT Cover logic
+option-sell-close-long.mmd	Option SELL: Closing LONG (Square-off)
+option-writing-new-short.mmd	Option SELL: Writing/creating new SHORT position
 
-Equity Buy Flow
-diagrams/equity-buy-flow.mmd
+All diagrams follow Top → Bottom (TD) layout for clarity.
 
-Equity Sell Flow
-diagrams/equity-sell-flow.mmd
+🛠 How to Preview Mermaid in VS Code
 
-📉 Options
-
-Option Buy Flow
-diagrams/option-buy-flow.mmd
-
-Option Sell Flow (Square-off + Writing / Shorting)
-diagrams/option-sell-flow.mmd
-
-Each of these is a left-to-right Mermaid flowchart, with vertical branching at each decision node.
-
-🛠️ VS Code Setup for Mermaid Preview
-
-To preview .mmd Mermaid diagrams:
-
-1. Install the extension
-
-Go to VS Code → Extensions (Ctrl + Shift + X) → search:
+Install these extensions:
 
 Markdown Preview Mermaid Support
 
+(Optional) Mermaid Markdown Syntax Highlighting
 
-Install it → Reload VS Code.
+Open any .mmd file
+Example:
 
-2. Open any .mmd file
-
-Example: equity-buy-flow.mmd
-
-3. Open preview
-
-Press:
-
-Ctrl + Shift + V
+diagrams/option-buy-flow.mmd
 
 
-Or right-click → Open Preview to the Side
+Open preview:
 
-Now your flowchart will render visually on the right.
+Press Ctrl + Shift + V
 
-📝 What’s Included in the Diagrams
-Equity Buy Flow covers:
+OR Right-click → Open Preview to the Side
 
-Login → Symbol selection → Buy form
+🧪 Sample Diagram Block
+flowchart TD
+  A([Start]) --> B{Logged in?}
+  B -- Yes --> C[Home]
+  B -- No --> D[Login Screen]
+
+📝 Notes
+
+All flows use error-free Mermaid syntax
+
+All branches include:
 
 Frontend validation
 
-OMS/Backend checks (Funds, Margin, RMS, Market status)
+Backend RMS/margin checks
 
-Exchange acceptance
-
-Partial/Full Fill logic
-
-Order Book & Position update
-
-Equity Sell Flow covers:
-
-Delivery Sell (POA True/False)
-
-CDSL/eDIS check
-
-Intraday Sell (MIS)
-
-Short Sell logic
-
-Order Book & Position update
-
-Option Buy Flow covers:
-
-Option contract selection
-
-Premium debit
-
-RMS + Margin checks
-
-Open/Pending/Partial/Full execution
-
-LONG position creation
-
-Option Sell Flow covers:
-
-Square-off LONG positions
-
-Option Writing (SHORT position creation)
-
-SPAN + Exposure margin checks
-
-RMS rejection handling
+Exchange acceptance/rejection
 
 Order Book & Position updates
+
+Equity Sell includes:
+
+POA TRUE / POA FALSE
+
+CDSL/E-DIS
+
+Mixed quantities (holdings + today buy)
+
+Partial CDSL logic (ES12, ES13)
